@@ -7,7 +7,7 @@
  email                : fioretti@iasfbo.inaf.it
  ----------------------------------------------
  Usage:
- visASTRI_histo.py filename selPDM param subfield_id nbins minval maxval maxevt t=title x=xlabel y=ylabel  
+ visASTRI_histo.py filename selPDM param subfield_id nbins minval maxval maxevt binx t=title x=xlabel y=ylabel  
  ---------------------------------------------------------------------------------
  Parameters:
  - filename: path + file name of the FITS file
@@ -19,6 +19,7 @@
  - minval: minimum value to create the histogram
  - maxval: maximum value to create the histogram
  - maxevt: max row (event) to read and plot. If 0 all the events are read.
+ - binx: selected x-axis value index (starting from 0) for which the bin content must be plotted.
  - (optional) t=title: title of the plot
  - (optional) x=xlabel: label of the x axis
  - (optional) y=ylabel: label of the y axis
@@ -67,7 +68,7 @@ if (len(arg_list) == 1):
 	print 'Author: V. Fioretti (INAF/IASF Bologna)'
 	print '----'
 	print 'Usage:'
-	print 'visASTRI_histo.py filename selPDM param subfield_id nbins minval maxval maxevt t=title x=xlabel y=ylabel'
+	print 'visASTRI_histo.py filename selPDM param subfield_id nbins minval maxval maxevt binx t=title x=xlabel y=ylabel'
  	print '-------------------------------------------------'
  	print 'Parameters:'
  	print '- filename: path + file name of the FITS file'
@@ -79,12 +80,13 @@ if (len(arg_list) == 1):
  	print ' - minval: minimum value to create the histogram'
  	print ' - maxval: maximum value to create the histogram'
  	print ' - maxevt: max row (event) to read and plot. If 0 all the events are read.'
+ 	print ' - binx: selected x-axis value index (starting from 0) for which the bin content must be plotted.'
  	print ' - (optional) t=title: title of the plot'
  	print ' - (optional) x=xlabel: label of the x axis'
  	print ' - (optional) y=ylabel: label of the y axis'
  	print '-------------------------------------------------'
  	print 'Example:'
- 	print 'python visASTRI_histo.py astri_000_11_111_11111_R_000000_000_0201.lv0 1 HI 0 100 800 1400 0 "t=PDM 01 HG histo" "x=ADC counts" "y=N"'
+ 	print 'python visASTRI_histo.py astri_000_11_111_11111_R_000000_000_0201.lv0 1 HI 0 100 800 1400 0 900 "t=PDM 01 HG histo" "x=ADC counts" "y=N"'
  	print '-------------------------------------------------'
 
 else:
@@ -97,14 +99,7 @@ else:
 	minval = int(arg_list[6])
 	maxval = int(arg_list[7])
 	maxevt = int(arg_list[8])
-	if (len(arg_list) > 9): 
-		temp_string = arg_list[9]
-		if (temp_string[0]=='t'):
-			title = temp_string[2:]
-		if (temp_string[0]=='x'):
-			xlabel = temp_string[2:]
-		if (temp_string[0]=='y'):
-			ylabel = temp_string[2:]	
+	binx = int(arg_list[9])
 	if (len(arg_list) > 10): 
 		temp_string = arg_list[10]
 		if (temp_string[0]=='t'):
@@ -112,9 +107,17 @@ else:
 		if (temp_string[0]=='x'):
 			xlabel = temp_string[2:]
 		if (temp_string[0]=='y'):
-			ylabel = temp_string[2:]
-	if (len(arg_list) > 11): 	
+			ylabel = temp_string[2:]	
+	if (len(arg_list) > 11): 
 		temp_string = arg_list[11]
+		if (temp_string[0]=='t'):
+			title = temp_string[2:]
+		if (temp_string[0]=='x'):
+			xlabel = temp_string[2:]
+		if (temp_string[0]=='y'):
+			ylabel = temp_string[2:]
+	if (len(arg_list) > 12): 	
+		temp_string = arg_list[12]
 		if (temp_string[0]=='t'):
 			title = temp_string[2:]
 		if (temp_string[0]=='x'):
@@ -260,7 +263,10 @@ else:
 
 	for jn in xrange(len(N_counts)):
 			err_x_array[jn] = (bin_array[jn+1] - bin_array[jn])/2.
-			x_array[jn] = bin_array[jn] 
+			x_array[jn] = bin_array[jn]
+	
+	valx = N_counts[binx-1]
+
 
 
 	fig = plt.figure(1,figsize=[10,7])
@@ -279,6 +285,7 @@ else:
 	plt.text(0.6, 0.8, 'Entries = '+str(N_entries), transform=ax.transAxes, fontsize=12, zorder=100)
 	plt.text(0.6, 0.75, 'Mean = '+str(round(mean_out, 1)), transform=ax.transAxes, fontsize=12, zorder=100)
 	plt.text(0.6, 0.7, 'RMS = '+str(round(sd_out, 1)), transform=ax.transAxes, fontsize=12, zorder=100)
+	plt.text(0.6, 0.65, 'Bin content ['+str(binx)+'] = '+str(valx), transform=ax.transAxes, fontsize=12, zorder=100)
 
 	ax.set_xlabel(xlabel)
 	ax.set_ylabel(ylabel)
